@@ -1,9 +1,233 @@
 #include <iostream>
 #include <vector>
-#include <utility>
 #include <queue>
+#include <cstdlib>
 
 using namespace std;
+class mypair
+{
+public:
+    int first;
+    int second;
+    mypair(int a = 0, int b = 0):first{a},second{b} {}
+    bool operator==(const mypair b)
+    {
+        if(first == b.first && second == b.second)
+            return true;
+        return false;
+    }
+    void operator=(mypair a)
+    {
+        first = a.first;
+        second = a.second;
+    }
+
+};
+mypair make_mypair(int a, int b)
+{
+    return mypair(a, b);
+}
+
+
+
+template <class T>
+class MyVector
+{
+
+public:
+
+    MyVector(): size_(0) {}
+
+    MyVector(const MyVector &rhs) = delete;
+
+    explicit MyVector(int n){
+        data_ = new T[n];
+        size_ = n;
+    }
+
+    ~MyVector()
+    {
+        delete [] data_;
+    }
+
+    int Size() const
+    {
+        return size_;
+    }
+
+    void Resize(int n);
+
+    T &At(int i)
+    {
+        return data_[i];
+    }
+
+    T At(int i) const
+    {
+        return data_[i];
+    }
+
+    bool Empty()
+    {
+        if(size_ == 0)
+            return true;
+        return false;
+    }
+
+    T Back()
+    {
+
+        return data_[size_ - 1];
+    }
+
+    void Insert(int pos, int elem)
+    {
+
+        MyVector TempMyVector(this->size_);
+
+        for (int i = 0; i < this->size_; ++i)
+            TempMyVector.data_[i] = this->data_[i];
+
+        delete [] this->data_;
+
+        size_++;
+
+        data_ = new T[size_];
+
+        for (int i = 0; i < pos; ++i)
+            data_[i] = TempMyVector.data_[i];
+
+        this->At(pos) = elem;
+
+        for (int i = pos+1; i < size_; ++i)
+            data_[i] = TempMyVector.data_[i-1];
+
+    }
+
+    void Erase(int pos)
+    {
+
+        MyVector TempMyVector(this->size_);
+
+        for (int i = 0; i < this->size_; ++i)
+            TempMyVector.data_[i] = this->data_[i];
+
+        delete [] this->data_;
+
+        size_--;
+
+        data_ = new T[size_];
+
+        for (int i = 0; i < pos; ++i)
+            data_[i] = TempMyVector.data_[i];
+
+        for (int i = pos; i < size_; ++i)
+            data_[i] = TempMyVector.data_[i+1];
+
+    }
+
+    void PushFront(T elem)
+    {
+
+        MyVector TempMyVector(this->size_);
+
+        for (int i = 0; i < this->size_; ++i)
+            TempMyVector.data_[i] = this->data_[i];
+
+        delete [] this->data_;
+
+        size_++;
+
+        data_ = new T[size_];
+
+        for (int i = 0; i < size_-1; ++i)
+            data_[i+1] = TempMyVector.data_[i];
+
+        this->At(0) = elem;
+
+    }
+
+    void PopFront()
+    {
+
+        MyVector TempMyVector(this->size_);
+
+        for (int i = 0; i < this->size_; ++i)
+            TempMyVector.data_[i] = this->data_[i];
+
+        delete [] this->data_;
+
+        size_--;
+
+        data_ = new T[size_];
+
+        for (int i = 0; i < size_; ++i)
+            data_[i] = TempMyVector.data_[i+1];
+
+    }
+
+    void Clear()
+    {
+
+        for (int i = 0; i < this->size_; ++i)
+            data_[i] = 0;
+
+    }
+
+    void PushBack(T elem)
+    {
+
+        MyVector TempMyVector(this->size_);
+
+        for (int i = 0; i < this->size_; ++i)
+            TempMyVector.data_[i] = this->data_[i];
+
+        delete [] this->data_;
+
+        size_++;
+
+        data_ = new T[size_];
+
+        for (int i = 0; i < size_-1; ++i)
+            data_[i] = TempMyVector.data_[i];
+
+        this->At(size_-1) = elem;
+
+    }
+
+    void PopBack()
+    {
+
+        MyVector TempMyVector(this->size_);
+
+        for (int i = 0; i < this->size_; ++i)
+            TempMyVector.data_[i] = this->data_[i];
+
+        delete [] this->data_;
+
+        size_--;
+
+        data_ = new T[size_];
+
+        for (int i = 0; i < size_; ++i)
+            data_[i] = TempMyVector.data_[i];
+
+    }
+
+    T &operator[](int i)
+    {
+        return At(i);
+    }
+
+    T operator[](int i) const
+    {
+        return At(i);
+    }
+private:
+    int size_;
+    T *data_;
+
+};
 
 int house[1100][1100] = {0};
 int isclean[1100][1100] = {0};
@@ -11,9 +235,9 @@ int disDFS[1100][1100] = {0};
 int disBFS[1100][1100] = {0};
 bool isvisit[1100][1100] = {0};
 int row, col, battery, maxstep;
-pair<int, int> startpos, curr;
-vector<pair<int, int>> path;
-vector<pair<int, int>> trueans;
+mypair startpos, curr;
+MyVector<mypair> path;
+MyVector<mypair> trueans;
 
 void makedisDFS(int step, int r, int c)
 {
@@ -38,9 +262,9 @@ void makedisBFS()
     class pos_dis
     {
     public:
-        pair<int, int> pos;
+        mypair pos;
         int step;
-        pos_dis(pair<int, int> p, int s):pos{p}, step{s} {}
+        pos_dis(mypair p, int s):pos{p}, step{s} {}
     };
     queue<pos_dis> q;
 
@@ -54,25 +278,25 @@ void makedisBFS()
         q.pop();
         if(r + 1 <= row && !visited[r + 1][c] && house[r + 1][c] == 0)
         {
-            q.push(pos_dis(make_pair(r + 1, c), step + 1));
+            q.push(pos_dis(make_mypair(r + 1, c), step + 1));
             disBFS[r + 1][c] = step + 1;
             visited[r + 1][c] = true;
         }
         if(r - 1 >= 1 && !visited[r - 1][c] && house[r - 1][c] == 0)
         {
-            q.push(pos_dis(make_pair(r - 1, c), step + 1));
+            q.push(pos_dis(make_mypair(r - 1, c), step + 1));
             disBFS[r - 1][c] = step + 1;
             visited[r - 1][c] = true;
         }
         if(c + 1 <= col && !visited[r][c + 1] && house[r][c + 1] == 0)
         {
-            q.push(pos_dis(make_pair(r, c + 1), step + 1));
+            q.push(pos_dis(make_mypair(r, c + 1), step + 1));
             disBFS[r][c + 1] = step + 1;
             visited[r][c + 1] = true;
         }
         if(c - 1 >= 1 && !visited[r][c - 1] && house[r][c - 1] == 0)
         {
-            q.push(pos_dis(make_pair(r, c - 1), step + 1));
+            q.push(pos_dis(make_mypair(r, c - 1), step + 1));
             disBFS[r][c - 1] = step + 1;
             visited[r][c - 1] = true;
         }
@@ -91,10 +315,10 @@ bool check_clean()
     return true;
 }
 bool isfind = false;
-void findpath(pair<int, int> point, pair<int, int> des, int total)
+void findpath(mypair point, mypair des, int total)
 {
-    path.push_back(point);
-    /*for(int i = 0; i < path.size(); i++)
+    path.PushBack(point);
+    /*for(int i = 0; i < path.Size(); i++)
     {
         cout << path[i].first << " " << path[i].second << endl;
     }
@@ -106,10 +330,10 @@ void findpath(pair<int, int> point, pair<int, int> des, int total)
         isfind = true;
         return;
     }
-    if(path.size() > total + 2)
+    if(path.Size() > total + 2)
     {
         //cout << "!!!!";
-        path.pop_back();
+        path.PopBack();
         return;
     }
     bool way = false;
@@ -124,27 +348,27 @@ void findpath(pair<int, int> point, pair<int, int> des, int total)
         //cout << "!!!";
         if(r + 1 <= row && disBFS[r + 1][c] > disBFS[r][c] && house[r + 1][c] != 1)
         {
-            findpath(make_pair(r + 1, c), des, total);
+            findpath(make_mypair(r + 1, c), des, total);
             if(isfind)
                 return;
         }
         if(r - 1 >= 1 && disBFS[r - 1][c] > disBFS[r][c] && house[r - 1][c] != 1)
         {
-            findpath(make_pair(r - 1, c), des, total);
+            findpath(make_mypair(r - 1, c), des, total);
             if(isfind)
                 return;
         }
         if(c + 1 <= col && disBFS[r][c + 1] > disBFS[r][c] && house[r][c + 1] != 1)
         {
 
-            findpath(make_pair(r, c + 1), des, total);
+            findpath(make_mypair(r, c + 1), des, total);
             if(isfind)
                 return;
         }
         if(c - 1 >= 1 && disBFS[r][c - 1] > disBFS[r][c] && house[r][c - 1] != 1)
         {
             //cout << "!!!";
-            findpath(make_pair(r, c - 1), des, total);
+            findpath(make_mypair(r, c - 1), des, total);
             if(isfind)
                 return;
         }
@@ -154,71 +378,71 @@ void findpath(pair<int, int> point, pair<int, int> des, int total)
         if(r + 1 <= row && disBFS[r + 1][c] < disBFS[r][c] && house[r + 1][c] != 1)
         {
             //cout << "!!!";
-            findpath(make_pair(r + 1, c), des, total);
+            findpath(make_mypair(r + 1, c), des, total);
             if(isfind)
                 return;
         }
         if(r - 1 >= 1 && disBFS[r - 1][c] < disBFS[r][c] && house[r - 1][c] != 1)
         {
-            findpath(make_pair(r - 1, c), des, total);
+            findpath(make_mypair(r - 1, c), des, total);
             if(isfind)
                 return;
         }
 
         if(c + 1 <= col && disBFS[r][c + 1] < disBFS[r][c] && house[r][c + 1] != 1)
         {
-            findpath(make_pair(r, c + 1), des, total);
+            findpath(make_mypair(r, c + 1), des, total);
             if(isfind)
                 return;
         }
         if(c - 1 >= 1 && disBFS[r][c - 1] < disBFS[r][c] && house[r][c - 1] != 1)
         {
-            findpath(make_pair(r, c - 1), des, total);
+            findpath(make_mypair(r, c - 1), des, total);
             if(isfind)
                 return;
         }
     }
     //cout << "!!!";
-    path.pop_back();
+    path.PopBack();
 }
 void showpath()
 {
-    for(int i = 1; i < path.size(); i++)
+    for(int i = 1; i < path.Size(); i++)
     {
-        trueans.push_back(path[i]);
+        trueans.PushBack(path[i]);
         //cout << path[i].first << " " << path[i].second << endl;
     }
 
 }
 void clearpath()
 {
-    while(!path.empty())
+    while(!path.Empty())
     {
-        isclean[path.back().first][path.back().second] = 1;
-        path.pop_back();
+        isclean[path.Back().first][path.Back().second] = 1;
+        path.PopBack();
     }
 }
 void onlyclear()
 {
-    while(!path.empty())
+    while(!path.Empty())
     {
         //isclean[path.back().first][path.back().second] = 1;
-        path.pop_back();
+        path.PopBack();
     }
 }
 void showans()
 {
-    cout << trueans.size() << endl;
-    for(int i = 0; i < trueans.size(); i++)
+    cout << trueans.Size() << endl;
+    for(int i = 0; i < trueans.Size(); i++)
     {
         cout << trueans[i].first << " " << trueans[i].second << "   " << i % battery << endl;
     }
 }
-bool back_to_charge(pair<int, int> curr, int leaststep)
+bool back_to_charge(mypair curr, int leaststep)
 {
     findpath(curr, startpos, abs(disBFS[curr.first][curr.second] - disBFS[startpos.first][startpos.second]));
-    cout << path.size() << "   ! " << leaststep << endl;
-    if(path.size() + 1 < leaststep)
+    cout << path.Size() << "   ! " << leaststep << endl;
+    if(path.Size() + 1 < leaststep)
     {
         clearpath();
         return true;
@@ -264,7 +488,7 @@ int main()
     //makedisDFS(0, start_row, start_col);
     makedisBFS();
     curr = startpos;
-    trueans.push_back(startpos);
+    trueans.PushBack(startpos);
     while(!check_clean())
     {
         int leaststep = maxstep;
@@ -279,25 +503,25 @@ int main()
             isfind = false;
             if(r + 1 <= row && disBFS[r + 1][c] > disBFS[r][c] && house[r + 1][c] != 1 && isclean[r + 1][c] == 0)
             {
-                findpath(curr, make_pair(r + 1, c), abs(disBFS[curr.first][curr.second] - disBFS[r + 1][c]));
+                findpath(curr, make_mypair(r + 1, c), abs(disBFS[curr.first][curr.second] - disBFS[r + 1][c]));
             }
             else if(r - 1 >= 1 && disBFS[r - 1][c] > disBFS[r][c] && house[r - 1][c] != 1 && isclean[r - 1][c] == 0)
             {
-                findpath(curr, make_pair(r - 1, c), abs(disBFS[curr.first][curr.second] - disBFS[r - 1][c]));
+                findpath(curr, make_mypair(r - 1, c), abs(disBFS[curr.first][curr.second] - disBFS[r - 1][c]));
             }
             else if(c + 1 <= col && disBFS[r][c + 1] > disBFS[r][c] && house[r][c + 1] != 1 && isclean[r][c + 1] == 0)
             {
-                findpath(curr, make_pair(r, c + 1), abs(disBFS[curr.first][curr.second] - disBFS[r][c + 1]));
+                findpath(curr, make_mypair(r, c + 1), abs(disBFS[curr.first][curr.second] - disBFS[r][c + 1]));
             }
             else if(c - 1 >= 1 && disBFS[r][c - 1] > disBFS[r][c] && house[r][c - 1] != 1 && isclean[r][c - 1] == 0)
             {
-                findpath(curr, make_pair(r, c - 1), abs(disBFS[curr.first][curr.second] - disBFS[r][c - 1]));
+                findpath(curr, make_mypair(r, c - 1), abs(disBFS[curr.first][curr.second] - disBFS[r][c - 1]));
             }
             else
             {
                 //cout << "!!!";
                 int minstep = maxstep;
-                pair<int, int> tar;
+                mypair tar;
                 for(int i = 1; i <= row; i++)
                 {
                     for(int j = 1; j <= col; j++)
@@ -313,7 +537,7 @@ int main()
                 }
                 //cout << "!!!!" << minstep << "!!!";
                 findpath(curr, tar, abs(disBFS[curr.first][curr.second] - disBFS[tar.first][tar.second]));
-                //cout << "!!!!" << path.size() << "!!!";
+                //cout << "!!!!" << path.Size() << "!!!";
                 //cout << endl;
 
                 /*for(int i = 1; i <= row; i++)
@@ -325,11 +549,11 @@ int main()
                     cout << endl;
                 }
                 cout << endl;//*/
-                if(path.size() == 0)
+                if(path.Size() == 0)
                 {
                     break;
                 }
-                int gostep = path.size() - 1;
+                int gostep = path.Size() - 1;
                 //onlyclear();
                 //findpath(tar, startpos, abs(disBFS[startpos.first][startpos.second] - disBFS[tar.first][tar.second]));
                 int backstep = abs(disBFS[startpos.first][startpos.second] - disBFS[tar.first][tar.second]);
@@ -348,7 +572,7 @@ int main()
 
             }
 
-            curr = make_pair(path.back().first, path.back().second);
+            curr = make_mypair(path.Back().first, path.Back().second);
             showpath();
             clearpath();
             leaststep--;
@@ -368,7 +592,7 @@ int main()
         }
         cout << endl;//*/
     }//*/
-    /*findpath(make_pair(3, 3), make_pair(3, 8), abs(disBFS[3][3] - disBFS[3][8]));
+    /*findpath(make_mypair(3, 3), make_mypair(3, 8), abs(disBFS[3][3] - disBFS[3][8]));
     showpath();
     clearpath();//*/
     cout << endl;
